@@ -1,0 +1,31 @@
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<title>WebAudio API</title>
+		<script src="jquery-3.4.1.min.js"></script>
+		<script src="lib.js"></script>
+		<script src="code.js"></script>
+		<link rel="stylesheet" type="text/css" href="style.css">
+	</head>
+	<body>
+		<button onclick="decreaseOctave()">Decrease Octave</button>
+		<button onclick="increaseOctave()">Increase Octave</button>
+		<br>
+
+		<ul id="piano">
+
+		</ul>
+		<br>		
+
+		<button onmousedown="kick()">Kick</button>
+		<button onmousedown="hat()">Hat</button>	
+		<button onmousedown="clap()">Clap</button>	
+    	<input type="checkbox" id="echo" onclick="toggleEcho();">Echo
+
+		<br>
+   
+    	<canvas id="freqCanvas" width="450" height="100"></canvas>   
+		<br>
+    	<canvas id="dataCanvas" width="450" height="100"></canvas>
+    </body>
+</html>
