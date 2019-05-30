@@ -4,6 +4,9 @@ var analyser;
 var master;
 var kickOscillator;
 var kickGain;
+var hatOscillator;
+var hatGain;
+var hatFilter;
 
 $(document).ready(function () {
     createPiano(12, onKeyPress, onKeyRelease);
@@ -15,16 +18,23 @@ function init() {
     master = getAutioContext().createGain();
     kickOscillator = getAutioContext().createOscillator();
     kickGain = getAutioContext().createGain();
+    hatOscillator = createWhiteNoise(getAutioContext());
+    hatGain = getAutioContext().createGain();
+    hatFilter = getAutioContext().createBiquadFilter();
 
     // INIT AUDIO NODES
     kickGain.gain.setValueAtTime(0, getAutioContext().currentTime);
     kickOscillator.type = 'triangle';
     kickOscillator.frequency.value = 60;
     kickOscillator.start(0);
+    hatGain.gain.setValueAtTime(0, getAutioContext().currentTime);
+    hatFilter.type = 'highpass';
+    hatFilter.frequency.value = 15000;
 
     // CONNECT AUDIO NODES
     master.connect(analyser).connect(getAutioContext().destination);
     kickOscillator.connect(kickGain).connect(master);
+    hatOscillator.connect(hatFilter).connect(hatGain).connect(master);
 
     initCharts(analyser);
     window.requestAnimationFrame(loop);
@@ -123,7 +133,8 @@ function hat() {
     var time = getAutioContext().currentTime;
     console.log('hat');
 
-    // TODO
+    hatGain.gain.setValueAtTime(1.0, time);
+    hatGain.gain.setTargetAtTime(0.0, time, 0.2);
 }
 
 /* ============ */
