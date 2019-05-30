@@ -1,5 +1,7 @@
+var pianoState = {};
 var audioCtx;
 var analyser;
+var master;
 
 $(document).ready(function () {
     createPiano(12, onKeyPress, onKeyRelease);
@@ -7,17 +9,17 @@ $(document).ready(function () {
 
 function init() {
     // CREATE AUDIO NODES
-    // TODO
+    analyser = getAutioContext().createAnalyser();
+    master = getAutioContext().createGain();
 
     // INIT AUDIO NODES
     // TODO
 
     // CONNECT AUDIO NODES
-    // TODO
+    master.connect(analyser).connect(getAutioContext().destination);
 
-    if (analyser) {
-        initCharts(analyser);
-    }
+
+    initCharts(analyser);
     window.requestAnimationFrame(loop);
 }
 
@@ -47,7 +49,26 @@ function onKeyPress(key, note) {
     console.log('press', note, frequency);
     $("#key_" + key).addClass("pressed");
 
-    // TODO
+    var state = pianoState[note];
+    if (!state) {
+        var state = {
+            oscillator1: getAutioContext().createOscillator(),
+            gain1: getAutioContext().createGain()
+        };
+
+        state.oscillator1.start(0);
+        state.gain1.gain.value = 0;
+
+        state.oscillator1.connect(state.gain1);
+        state.gain1.connect(master);
+
+        pianoState[note] = state;
+    }
+    var oscillator1 = state.oscillator1;
+    var gain1 = state.gain1;
+
+    oscillator1.frequency.setValueAtTime(frequency, time);
+    gain1.gain.setTargetAtTime(1.0, time, 0.25);
 }
 
 function onKeyRelease(key, note) {
@@ -56,7 +77,12 @@ function onKeyRelease(key, note) {
     console.log('release', note, frequency);
     $("#key_" + key).removeClass("pressed");
 
-    // TODO
+    var state = pianoState[note];
+    if (state) {
+        console.log('release', time, key, note, frequency);
+        var time = getAutioContext().currentTime;
+        state.gain1.gain.setTargetAtTime(0.0, time, 0.25);
+    }
 }
 
 /* ============ */
