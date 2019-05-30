@@ -2,6 +2,8 @@ var pianoState = {};
 var audioCtx;
 var analyser;
 var master;
+var kickOscillator;
+var kickGain;
 
 $(document).ready(function () {
     createPiano(12, onKeyPress, onKeyRelease);
@@ -11,13 +13,18 @@ function init() {
     // CREATE AUDIO NODES
     analyser = getAutioContext().createAnalyser();
     master = getAutioContext().createGain();
+    kickOscillator = getAutioContext().createOscillator();
+    kickGain = getAutioContext().createGain();
 
     // INIT AUDIO NODES
-    // TODO
+    kickGain.gain.setValueAtTime(0, getAutioContext().currentTime);
+    kickOscillator.type = 'triangle';
+    kickOscillator.frequency.value = 60;
+    kickOscillator.start(0);
 
     // CONNECT AUDIO NODES
     master.connect(analyser).connect(getAutioContext().destination);
-
+    kickOscillator.connect(kickGain).connect(master);
 
     initCharts(analyser);
     window.requestAnimationFrame(loop);
@@ -104,7 +111,8 @@ function kick() {
     var time = getAutioContext().currentTime;
     console.log('kick');
 
-    // TODO
+    kickGain.gain.setValueAtTime(1.0, time);
+    kickGain.gain.setTargetAtTime(0.0, time, 0.5);
 }
 
 /* =========== */
