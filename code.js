@@ -7,6 +7,13 @@ var kickGain;
 var hatOscillator;
 var hatGain;
 var hatFilter;
+var trackSource;
+var trackGain;
+
+var audio = new Audio();
+audio.src = 'clap.mp3';
+audio.controls = true;
+audio.autoplay = false;
 
 $(document).ready(function () {
     createPiano(12, onKeyPress, onKeyRelease);
@@ -30,11 +37,14 @@ function init() {
     hatGain.gain.setValueAtTime(0, getAutioContext().currentTime);
     hatFilter.type = 'highpass';
     hatFilter.frequency.value = 15000;
+    trackSource = getAutioContext().createMediaElementSource(audio);
+    trackGain = getAutioContext().createGain();
 
     // CONNECT AUDIO NODES
     master.connect(analyser).connect(getAutioContext().destination);
     kickOscillator.connect(kickGain).connect(master);
     hatOscillator.connect(hatFilter).connect(hatGain).connect(master);
+    trackSource.connect(trackGain).connect(master);
 
     initCharts(analyser);
     window.requestAnimationFrame(loop);
@@ -145,5 +155,5 @@ function clap() {
     var time = getAutioContext().currentTime;
     console.log('clap');
 
-    // TODO
+    audio.play();
 }
