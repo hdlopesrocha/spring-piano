@@ -9,6 +9,8 @@ var hatGain;
 var hatFilter;
 var trackSource;
 var trackGain;
+var echoDelay;
+var echoFeedback;
 
 var audio = new Audio();
 audio.src = 'clap.mp3';
@@ -28,6 +30,8 @@ function init() {
     hatOscillator = createWhiteNoise(getAutioContext());
     hatGain = getAutioContext().createGain();
     hatFilter = getAutioContext().createBiquadFilter();
+    echoDelay = getAutioContext().createDelay();
+    echoFeedback = getAutioContext().createGain();
 
     // INIT AUDIO NODES
     kickGain.gain.setValueAtTime(0, getAutioContext().currentTime);
@@ -45,6 +49,7 @@ function init() {
     kickOscillator.connect(kickGain).connect(master);
     hatOscillator.connect(hatFilter).connect(hatGain).connect(master);
     trackSource.connect(trackGain).connect(master);
+    master.connect(echoDelay).connect(echoFeedback);
 
     initCharts(analyser);
     window.requestAnimationFrame(loop);
@@ -133,7 +138,13 @@ function toggleEcho() {
     var time = getAutioContext().currentTime;
     console.log('echo');
 
-    // TODO
+    if ($('#echo:checked').val()) {
+        echoDelay.delayTime.value = 0.8;
+        echoFeedback.gain.value = 0.6;
+        echoFeedback.connect(master);
+    } else {
+        echoFeedback.disconnect();
+    }
 }
 
 /* ============ */
