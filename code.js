@@ -11,6 +11,8 @@ var trackSource;
 var trackGain;
 var echoDelay;
 var echoFeedback;
+var lowPassFilter;
+var highPassFilter;
 
 var audio = new Audio();
 audio.src = 'clap.mp3';
@@ -18,7 +20,7 @@ audio.controls = true;
 audio.autoplay = false;
 
 $(document).ready(function () {
-    createPiano(12, onKeyPress, onKeyRelease);
+    createPiano(12, onKeyPress, onKeyRelease, onKnobChange);
 });
 
 function init() {
@@ -30,6 +32,8 @@ function init() {
     hatOscillator = createWhiteNoise(getAutioContext());
     hatGain = getAutioContext().createGain();
     hatFilter = getAutioContext().createBiquadFilter();
+    lowPassFilter = getAutioContext().createBiquadFilter();
+    highPassFilter = getAutioContext().createBiquadFilter();
     echoDelay = getAutioContext().createDelay();
     echoFeedback = getAutioContext().createGain();
 
@@ -41,11 +45,15 @@ function init() {
     hatGain.gain.setValueAtTime(0, getAutioContext().currentTime);
     hatFilter.type = 'highpass';
     hatFilter.frequency.value = 15000;
+    lowPassFilter.type = 'lowpass';
+    lowPassFilter.frequency.value = 22000;
+    highPassFilter.type = 'highpass';
+    highPassFilter.frequency.value = 0;
     trackSource = getAutioContext().createMediaElementSource(audio);
     trackGain = getAutioContext().createGain();
 
     // CONNECT AUDIO NODES
-    master.connect(analyser).connect(getAutioContext().destination);
+    master.connect(lowPassFilter).connect(highPassFilter).connect(analyser).connect(getAutioContext().destination);
     kickOscillator.connect(kickGain).connect(master);
     hatOscillator.connect(hatFilter).connect(hatGain).connect(master);
     trackSource.connect(trackGain).connect(master);
@@ -180,4 +188,17 @@ function clap() {
     console.log('clap');
 
     audio.play();
+}
+
+
+/* ============ */
+/* KNOB SECTION */
+/* ============ */
+
+function onKnobChange(note, value) {
+    if(note === 21) {
+        lowPassFilter.frequency.value = 22000*value;
+    } else if(note === 22) {
+        highPassFilter.frequency.value = 22000*value;
+    }
 }

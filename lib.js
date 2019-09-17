@@ -136,7 +136,7 @@ function unpressCurrentKey(release) {
 var leftButtonDown = false;
 var keys = [65, 87, 83, 69, 68, 82, 70, 71, 89, 72, 85, 74];
 
-function createPiano(notes, press, release) {
+function createPiano(notes, press, release, knob) {
     $('input[type=checkbox]').removeAttr('checked');
     $("#piano").html('');
     for (var i = 0; i < notes; ++i) {
@@ -204,7 +204,7 @@ function createPiano(notes, press, release) {
         unpressCurrentKey(release);
     });
 
-    initMidi(press, release);
+    initMidi(press, release, knob);
 }
 
 function createWhiteNoise(audioContext) {
@@ -277,7 +277,7 @@ function drawBar(ctx, upperLeftCornerX, upperLeftCornerY, width, height, color) 
 var AudioContext = window.AudioContext || window.webkitAudioContext;
 
 
-function initMidi(press, release) {
+function initMidi(press, release, knob) {
 
     function onMIDISuccess(midiAccess) {
         for (var input of midiAccess.inputs.values()) {
@@ -288,6 +288,7 @@ function initMidi(press, release) {
     function getMIDIMessage(message) {
         var command = message.data[0];
         var note = message.data[1];
+        var value = message.data[2];
         var velocity = (message.data.length > 2) ? message.data[2] : 0; // a velocity value might not be included with a noteOff command
         console.log(message);
         switch (command) {
@@ -301,6 +302,8 @@ function initMidi(press, release) {
             case 128: // noteOff
                 release(note % 12, note);
                 break;
+            case 176:
+                knob(note, value / 128.0);
             // we could easily expand this switch statement to cover other types of commands such as controllers or sysex
         }
     }
