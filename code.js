@@ -20,7 +20,7 @@ audio.controls = true;
 audio.autoplay = false;
 
 $(document).ready(function () {
-    createPiano(12, onKeyPress, onKeyRelease, onKnobChange);
+    createPiano(12, onKeyPress, onKeyRelease, onKnobChange, onButtonPress);
 });
 
 function init() {
@@ -200,5 +200,19 @@ function onKnobChange(note, value) {
         lowPassFilter.frequency.value = 22000*value;
     } else if(note === 22) {
         highPassFilter.frequency.value = 22000*value;
+    }
+}
+
+/* ============== */
+/* BUTTON SECTION */
+/* ============== */
+
+function onButtonPress(note) {
+    if(note === 40) {
+        kick();
+    } else if(note === 41) {
+        hat();
+    } else if(note === 42) {
+        clap();
     }
 }

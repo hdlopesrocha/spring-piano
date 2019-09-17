@@ -136,7 +136,7 @@ function unpressCurrentKey(release) {
 var leftButtonDown = false;
 var keys = [65, 87, 83, 69, 68, 82, 70, 71, 89, 72, 85, 74];
 
-function createPiano(notes, press, release, knob) {
+function createPiano(notes, press, release, knob, button) {
     $('input[type=checkbox]').removeAttr('checked');
     $("#piano").html('');
     for (var i = 0; i < notes; ++i) {
@@ -204,7 +204,7 @@ function createPiano(notes, press, release, knob) {
         unpressCurrentKey(release);
     });
 
-    initMidi(press, release, knob);
+    initMidi(press, release, knob, button);
 }
 
 function createWhiteNoise(audioContext) {
@@ -277,7 +277,7 @@ function drawBar(ctx, upperLeftCornerX, upperLeftCornerY, width, height, color) 
 var AudioContext = window.AudioContext || window.webkitAudioContext;
 
 
-function initMidi(press, release, knob) {
+function initMidi(press, release, knob, button) {
 
     function onMIDISuccess(midiAccess) {
         for (var input of midiAccess.inputs.values()) {
@@ -304,6 +304,8 @@ function initMidi(press, release, knob) {
                 break;
             case 176:
                 knob(note, value / 128.0);
+            case 153:
+                button(note);
             // we could easily expand this switch statement to cover other types of commands such as controllers or sysex
         }
     }
